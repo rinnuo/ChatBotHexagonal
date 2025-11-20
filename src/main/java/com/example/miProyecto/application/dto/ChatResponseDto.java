@@ -1,11 +1,11 @@
 package com.example.miProyecto.application.dto;
 
 public class ChatResponseDto {
-    private String response;
+    private String output;
 
     public ChatResponseDto() {}
-    public ChatResponseDto(String response) { this.response = response; }
+    public ChatResponseDto(String output) { this.output = output; }
 
-    public String getResponse() { return response; }
-    public void setResponse(String response) { this.response = response; }
+    public String getOutput() { return output; }
+    public void setOutput(String output) { this.output = output; }
 }

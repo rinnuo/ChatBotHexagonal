@@ -1,6 +1,6 @@
 package com.example.miProyecto.application.services;
 
-import com.example.miProyecto.application.port.ChatBot;
+import com.example.miProyecto.application.port.out.ChatBot;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 

@@ -1,6 +1,8 @@
 package com.example.miProyecto.infrestructure;
 
-import com.example.miProyecto.application.port.ChatBot;
+import com.example.miProyecto.application.port.out.ChatBot;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Component;
@@ -14,10 +16,8 @@ public class ChatBotN8N implements ChatBot {
     @Value("${chatbot.n8n.url}")
     private String n8nUrl;
 
-    @Value("${chatbot.n8n.apiKey:}")
-    private String apiKey;
-
     private final RestTemplate rest = new RestTemplate();
+    private final ObjectMapper mapper = new ObjectMapper();
 
     @Override
     public String message(String prompt) {
@@ -27,16 +27,30 @@ public class ChatBotN8N implements ChatBot {
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        if (apiKey != null && !apiKey.isBlank()) {
-            headers.set("Authorization", "Bearer " + apiKey);
+
+        String bodyJson;
+        try {
+            String trimmed = prompt == null ? "" : prompt.trim();
+            if (trimmed.startsWith("{")) {
+                bodyJson = prompt;
+            } else {
+                bodyJson = mapper.writeValueAsString(Map.of("sessionId", "", "chatInput", prompt));
+            }
+        } catch (Exception e) {
+            bodyJson = "{\"sessionId\":\"\",\"chatInput\":\"" + (prompt == null ? "" : prompt) + "\"}";
         }
 
-        Map<String, Object> body = Map.of("prompt", prompt);
-        HttpEntity<Map<String, Object>> request = new HttpEntity<>(body, headers);
+        HttpEntity<String> request = new HttpEntity<>(bodyJson, headers);
 
         try {
             ResponseEntity<String> resp = rest.postForEntity(n8nUrl, request, String.class);
             if (resp.getStatusCode().is2xxSuccessful() && resp.getBody() != null) {
+                try {
+                    JsonNode node = mapper.readTree(resp.getBody());
+                    if (node.has("output")) {
+                        return node.get("output").asText();
+                    }
+                } catch (Exception ignore) { }
                 return resp.getBody();
             }
             return "n8n responded with status: " + resp.getStatusCodeValue();
