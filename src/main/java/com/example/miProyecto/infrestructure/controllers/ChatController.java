@@ -28,7 +28,7 @@ public class ChatController {
                 "chatInput", request.getChatInput() == null ? "" : request.getChatInput()
             );
             String json = mapper.writeValueAsString(body);
-            String result = service.message(json);
+            String result = service.message(json, request.getProvider());
             return ResponseEntity.ok(new ChatResponseDto(result));
         } catch (Exception e) {
             return ResponseEntity.status(500).body(new ChatResponseDto("error: " + e.getMessage()));

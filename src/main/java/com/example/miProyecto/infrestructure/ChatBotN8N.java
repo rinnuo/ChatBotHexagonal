@@ -50,7 +50,7 @@ public class ChatBotN8N implements ChatBot {
                     if (node.has("output")) {
                         return node.get("output").asText();
                     }
-                } catch (Exception ignore) { }
+                } catch (Exception ignore) {}
                 return resp.getBody();
             }
             return "n8n responded with status: " + resp.getStatusCodeValue();
